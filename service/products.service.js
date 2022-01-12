@@ -48,7 +48,7 @@ const getById = async (id) => {
   return product;
 };
 
-const editProduct = async (id, name, quantity) => {
+const editById = async (id, name, quantity) => {
   const { error } = schema.validate({
     name, quantity,
   });
@@ -65,9 +65,21 @@ const editProduct = async (id, name, quantity) => {
   return editedProduct;
 };
 
+const deleteById = async (id) => {
+  if (id.length !== 24) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+
+  const product = await models.findProductById(id);
+  const { deletedCount } = await models.deleteProduct(id);
+
+  if (deletedCount === 0) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+  
+  return product;
+};
+
 module.exports = {
   createProduct,
   getAll,
   getById,
-  editProduct,
+  editById,
+  deleteById,
 };

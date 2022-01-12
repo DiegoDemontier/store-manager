@@ -43,11 +43,24 @@ const editProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, quantity } = req.body;
-    const product = await services.editProduct(id, name, quantity);
+    const product = await services.editById(id, name, quantity);
     
     return res.status(success).json(product);
   } catch (error) {
     console.log(`EDIT PRODUCT -> ${error.message}`);
+
+    return next(error);
+  }
+};
+
+const deleteProductById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await services.deleteById(id);
+    
+    return res.status(success).json(product);
+  } catch (error) {
+    console.log(`DELETE PRODUCT BY ID -> ${error.message}`);
 
     return next(error);
   }
@@ -58,4 +71,5 @@ module.exports = {
   getAllProducts,
   getProductById,
   editProductById,
+  deleteProductById,
 };

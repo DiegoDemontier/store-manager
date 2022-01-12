@@ -1,16 +1,28 @@
 const { ObjectId } = require('mongodb');
 const connect = require('./connect');
 
-const findProducts = async () => {
+const insertProduct = async (name, quantity) => {
   const conn = await connect();
-  const query = await conn.collection('products').find().toArray();
-
-  return query;
+  
+  const { insertedId } = await conn.collection('products')
+    .insertOne({
+      name,
+      quantity,
+    });
+    
+  return insertedId;
 };
 
 const findProductByName = async (name) => {
   const conn = await connect();
   const query = await conn.collection('products').findOne({ name });
+
+  return query;
+};
+
+const findProducts = async () => {
+  const conn = await connect();
+  const query = await conn.collection('products').find().toArray();
 
   return query;
 };
@@ -37,22 +49,18 @@ const replaceProductById = async (id, name, quantity) => {
   return query;
 };
 
-const insertProduct = async (name, quantity) => {
+const deleteProduct = async (id) => {
   const conn = await connect();
-  
-  const { insertedId } = await conn.collection('products')
-    .insertOne({
-      name,
-      quantity,
-    });
-    
-  return insertedId;
+  const query = await conn.collection('products').deleteOne({ _id: ObjectId(id) });
+
+  return query;
 };
 
 module.exports = {
-  findProducts,
+  insertProduct,
   findProductByName,
+  findProducts,
   findProductById,
   replaceProductById,
-  insertProduct,
+  deleteProduct,
 };
