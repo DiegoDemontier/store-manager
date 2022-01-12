@@ -3,10 +3,10 @@ const { success } = require('../utils/statusCode');
 
 const newSale = async (req, res, next) => {
   try {
-    const sales = req.body;
-    const product = await services.createSale(sales);
+    const sale = req.body;
+    const getSale = await services.createSale(sale);
     
-    return res.status(success).json(product);
+    return res.status(success).json(getSale);
   } catch (error) {
     console.log(`NEW SALE -> ${error.message}`);
 
@@ -16,8 +16,8 @@ const newSale = async (req, res, next) => {
 
 const getAllSales = async (req, res, next) => {
   try {
-    const sales = await services.getAll();
-    return res.status(success).json(sales);
+    const getSales = await services.getAll();
+    return res.status(success).json(getSales);
   } catch (error) {
     console.log(`GET ALL SALES -> ${error.message}`);
 
@@ -28,11 +28,11 @@ const getAllSales = async (req, res, next) => {
 const getSaleById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const product = await services.getById(id);
+    const getSale = await services.getById(id);
 
-    return res.status(success).json(product);
+    return res.status(success).json(getSale);
   } catch (error) {
-    console.log(`GET SALES BY ID -> ${error.message}`);
+    console.log(`GET SALE BY ID -> ${error.message}`);
 
     return next(error);
   }
@@ -42,11 +42,24 @@ const editSaleById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const sale = req.body;
-    const product = await services.editById(id, sale);
+    const getSale = await services.editById(id, sale);
     
-    return res.status(success).json(product);
+    return res.status(success).json(getSale);
   } catch (error) {
-    console.log(`EDIT PRODUCT -> ${error.message}`);
+    console.log(`EDIT PRODUCT BY ID -> ${error.message}`);
+
+    return next(error);
+  }
+};
+
+const deleteSaleById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const getSale = await services.deleteById(id);
+    
+    return res.status(success).json(getSale);
+  } catch (error) {
+    console.log(`DELETE SALE BY ID -> ${error.message}`);
 
     return next(error);
   }
@@ -57,4 +70,5 @@ module.exports = {
   getAllSales,
   getSaleById,
   editSaleById,
+  deleteSaleById,
 };

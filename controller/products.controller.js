@@ -47,7 +47,7 @@ const editProductById = async (req, res, next) => {
     
     return res.status(success).json(product);
   } catch (error) {
-    console.log(`EDIT PRODUCT -> ${error.message}`);
+    console.log(`EDIT PRODUCT BY ID -> ${error.message}`);
 
     return next(error);
   }

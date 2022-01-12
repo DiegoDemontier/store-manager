@@ -38,9 +38,17 @@ const replaceSaleById = async (id, itensSold) => {
   return query;
 };
 
+const deleteSale = async (id) => {
+  const conn = await connect();
+  const query = await conn.collection('sales').deleteOne({ _id: ObjectId(id) });
+
+  return query;
+};
+
 module.exports = {
   insertSale,
   findSales,
   findSaleById,
   replaceSaleById,
+  deleteSale,
 };

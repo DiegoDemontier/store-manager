@@ -49,7 +49,7 @@ const getById = async (id) => {
 
 const editById = async (id, sale) => {
   const itensSold = sale;
-  
+
   const { error } = schema.validate(sale);
   if (error) throw errorConstructor(unprocessableEntity, error.message, 'invalid_data');
 
@@ -63,9 +63,25 @@ const editById = async (id, sale) => {
   return editedProduct;
 };
 
+const deleteById = async (id) => {
+  if (id.length !== 24) {
+    throw errorConstructor(unprocessableEntity, 'Wrong sale ID format', 'invalid_data');
+  }
+
+  const sale = await models.findSaleById(id);
+  const { deletedCount } = await models.deleteSale(id);
+
+  if (deletedCount === 0) {
+    throw errorConstructor(unprocessableEntity, 'Wrong sale ID format', 'invalid_data');
+  }
+  
+  return sale;
+};
+
 module.exports = {
   createSale,
   getAll,
   getById,
   editById,
+  deleteById,
 };
