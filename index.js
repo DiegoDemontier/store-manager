@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const routerProducts = require('./router/routerProducts');
+const routerSales = require('./router/routerSales');
 const arrorMiddleware = require('./middleware/errorHandle');
 
 const app = express();
@@ -8,6 +9,7 @@ const port = 3000;
 
 app.use(bodyParser.json());
 app.use('/products', routerProducts);
+app.use('/sales', routerSales);
 app.use(arrorMiddleware);
 
 // não remova esse endpoint, e para o avaliador funcionar
