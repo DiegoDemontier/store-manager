@@ -9,9 +9,22 @@ const schema = Joi.object({
 });
 
 const getAll = async () => {
-  const allProducts = await models.findProducts(); 
+  const products = await models.findProducts(); 
+  const allProducts = {
+    products,
+  };
 
   return allProducts;
+};
+
+const getById = async (id) => {
+  if (id.length !== 24) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+
+  const product = await models.findProductById(id);
+
+  if (!product) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+
+  return product;
 };
 
 const createProduct = async (name, quantity) => {
@@ -37,5 +50,6 @@ const createProduct = async (name, quantity) => {
 
 module.exports = {
   getAll,
+  getById,
   createProduct,
 };
