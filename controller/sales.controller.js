@@ -38,8 +38,23 @@ const getSaleById = async (req, res, next) => {
   }
 };
 
+const editSaleById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const sale = req.body;
+    const product = await services.editById(id, sale);
+    
+    return res.status(success).json(product);
+  } catch (error) {
+    console.log(`EDIT PRODUCT -> ${error.message}`);
+
+    return next(error);
+  }
+};
+
 module.exports = {
   newSale,
   getAllSales,
   getSaleById,
+  editSaleById,
 };

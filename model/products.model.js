@@ -37,13 +37,13 @@ const findProductById = async (id) => {
 const replaceProductById = async (id, name, quantity) => {
   const conn = await connect();
   const query = await conn.collection('products').replaceOne(
-  {
-    _id: ObjectId(id),
-  },
-  { 
-    name,
-    quantity,
-  },
+    {
+      _id: ObjectId(id),
+    },
+    { 
+      name,
+      quantity,
+    },
   );
 
   return query;

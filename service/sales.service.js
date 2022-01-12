@@ -47,8 +47,25 @@ const getById = async (id) => {
   return product;
 };
 
+const editById = async (id, sale) => {
+  const itensSold = sale;
+  
+  const { error } = schema.validate(sale);
+  if (error) throw errorConstructor(unprocessableEntity, error.message, 'invalid_data');
+
+  const { ops } = await models.replaceSaleById(id, itensSold);
+  
+  const editedProduct = {
+    _id: id,
+    ...ops[0],
+  };
+
+  return editedProduct;
+};
+
 module.exports = {
   createSale,
   getAll,
   getById,
+  editById,
 };

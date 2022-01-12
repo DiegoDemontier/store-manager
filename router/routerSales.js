@@ -6,5 +6,6 @@ const routerProducts = express.Router();
 routerProducts.post('/', controllers.newSale);
 routerProducts.get('/', controllers.getAllSales);
 routerProducts.get('/:id', controllers.getSaleById);
+routerProducts.put('/:id', controllers.editSaleById);
 
 module.exports = routerProducts;
