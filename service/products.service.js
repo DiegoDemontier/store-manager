@@ -15,8 +15,10 @@ const createProduct = async (name, quantity) => {
 
   const product = await models.findProductByName(name);
 
-  if (product) throw errorConstructor(unprocessableEntity, 'Product already exists');
-  if (error) throw errorConstructor(unprocessableEntity, error.message);
+  if (product) {
+    throw errorConstructor(unprocessableEntity, 'Product already exists', 'invalid_data');
+  }
+  if (error) throw errorConstructor(unprocessableEntity, error.message, 'invalid_data');
 
   const productId = await models.insertProduct(name, quantity);
 
@@ -39,11 +41,13 @@ const getAll = async () => {
 };
 
 const getById = async (id) => {
-  if (id.length !== 24) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+  if (id.length !== 24) {
+    throw errorConstructor(unprocessableEntity, 'Wrong id format', 'invalid_data');
+  }
 
   const product = await models.findProductById(id);
 
-  if (!product) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+  if (!product) throw errorConstructor(unprocessableEntity, 'Wrong id format', 'invalid_data');
 
   return product;
 };
@@ -53,7 +57,7 @@ const editById = async (id, name, quantity) => {
     name, quantity,
   });
 
-  if (error) throw errorConstructor(unprocessableEntity, error.message);
+  if (error) throw errorConstructor(unprocessableEntity, error.message, 'invalid_data');
   
   const { ops } = await models.replaceProductById(id, name, quantity);
   
@@ -66,12 +70,16 @@ const editById = async (id, name, quantity) => {
 };
 
 const deleteById = async (id) => {
-  if (id.length !== 24) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+  if (id.length !== 24) {
+    throw errorConstructor(unprocessableEntity, 'Wrong id format', 'invalid_data');
+  }
 
   const product = await models.findProductById(id);
   const { deletedCount } = await models.deleteProduct(id);
 
-  if (deletedCount === 0) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+  if (deletedCount === 0) {
+    throw errorConstructor(unprocessableEntity, 'Wrong id format', 'invalid_data');
+  }
   
   return product;
 };

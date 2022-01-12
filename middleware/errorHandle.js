@@ -1,11 +1,11 @@
 module.exports = (err, req, res, _next) => {
   const message = {
-    code: 'invalid_data',
+    code: err.code,
     message: err.message,
   };
 
   if (err.status) {
-    return res.status(err.status).json({ err: message, desc: err.description });
+    return res.status(err.status).json({ err: message });
   }
 
   console.error(err);

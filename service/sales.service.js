@@ -1,7 +1,7 @@
 const Joi = require('@hapi/joi');
 const models = require('../model/sales.model');
 const errorConstructor = require('../utils/errorHandling');
-const { unprocessableEntity } = require('../utils/statusCode');
+const { unprocessableEntity, notFound } = require('../utils/statusCode');
 
 const schema = Joi.array().items(Joi.object({
   productId: Joi.string().alphanum().max(24).min(24)
@@ -17,7 +17,7 @@ const createSale = async (sales) => {
   const itensSold = sales;
 
   const { error } = schema.validate(sales);
-  if (error) throw errorConstructor(unprocessableEntity, error.message);
+  if (error) throw errorConstructor(unprocessableEntity, error.message, 'invalid_data');
 
   const saleId = await models.insertSale(itensSold);
   const newSale = {
@@ -28,6 +28,27 @@ const createSale = async (sales) => {
   return newSale;
 };
 
+const getAll = async () => {
+  const sales = await models.findSales(); 
+  const allSales = {
+    sales,
+  };
+
+  return allSales;
+};
+
+const getById = async (id) => {
+  if (id.length !== 24) throw errorConstructor(notFound, 'Sale not found', 'not_found');
+
+  const product = await models.findSaleById(id);
+
+  if (!product) throw errorConstructor(notFound, 'Sale not found', 'not_found');
+
+  return product;
+};
+
 module.exports = {
-  createSale, 
+  createSale,
+  getAll,
+  getById,
 };
