@@ -8,25 +8,6 @@ const schema = Joi.object({
   quantity: Joi.number().integer().min(1).required(),
 });
 
-const getAll = async () => {
-  const products = await models.findProducts(); 
-  const allProducts = {
-    products,
-  };
-
-  return allProducts;
-};
-
-const getById = async (id) => {
-  if (id.length !== 24) throw errorConstructor(unprocessableEntity, 'Wrong id format');
-
-  const product = await models.findProductById(id);
-
-  if (!product) throw errorConstructor(unprocessableEntity, 'Wrong id format');
-
-  return product;
-};
-
 const createProduct = async (name, quantity) => {
   const { error } = schema.validate({
     name, quantity,
@@ -48,8 +29,45 @@ const createProduct = async (name, quantity) => {
   return newProduct;
 };
 
+const getAll = async () => {
+  const products = await models.findProducts(); 
+  const allProducts = {
+    products,
+  };
+
+  return allProducts;
+};
+
+const getById = async (id) => {
+  if (id.length !== 24) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+
+  const product = await models.findProductById(id);
+
+  if (!product) throw errorConstructor(unprocessableEntity, 'Wrong id format');
+
+  return product;
+};
+
+const editProduct = async (id, name, quantity) => {
+  const { error } = schema.validate({
+    name, quantity,
+  });
+
+  if (error) throw errorConstructor(unprocessableEntity, error.message);
+  
+  const { ops } = await models.replaceProductById(id, name, quantity);
+  
+  const editedProduct = {
+    _id: id,
+    ...ops[0],
+  };
+
+  return editedProduct;
+};
+
 module.exports = {
+  createProduct,
   getAll,
   getById,
-  createProduct,
+  editProduct,
 };
