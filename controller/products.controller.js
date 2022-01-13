@@ -43,7 +43,7 @@ const editProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, quantity } = req.body;
-    const product = await services.editById(id, name, quantity);
+    const product = await services.editById(id, quantity, name);
     
     return res.status(success).json(product);
   } catch (error) {

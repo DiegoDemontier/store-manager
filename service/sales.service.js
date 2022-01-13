@@ -1,5 +1,6 @@
 const Joi = require('@hapi/joi');
-const models = require('../model/sales.model');
+const saleModel = require('../model/sales.model');
+const productModel = require('../model/products.model');
 const errorConstructor = require('../utils/errorHandling');
 const { unprocessableEntity, notFound } = require('../utils/statusCode');
 
@@ -13,13 +14,36 @@ const schema = Joi.array().items(Joi.object({
   }),
 }));
 
-const createSale = async (sales) => {
-  const itensSold = sales;
-
-  const { error } = schema.validate(sales);
+const validateSale = (sale) => {
+  const { error } = schema.validate(sale);
   if (error) throw errorConstructor(unprocessableEntity, error.message, 'invalid_data');
+};
 
-  const saleId = await models.insertSale(itensSold);
+const handleQuantity = async (sale) => {
+  // REF: https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
+  await Promise.all(sale.map(async ({ productId, quantity }) => {
+    const contents = await productModel.findProductById(productId);
+    
+    if (!contents) {
+      throw errorConstructor(unprocessableEntity, 'Wrong product ID', 'invalid_data');
+    }
+
+    const total = contents.quantity - quantity;
+
+    if (total >= 0) {
+      await productModel.replaceProductById(productId, total, contents.name);
+    } else {
+      throw errorConstructor(notFound, 'Such amount is not permitted to sell', 'stock_problem');
+    }
+  }));
+};
+
+const createSale = async (sale) => {
+  validateSale(sale);
+  await handleQuantity(sale);
+
+  const itensSold = sale;
+  const saleId = await saleModel.insertSale(itensSold);
   const newSale = {
     _id: saleId,
     itensSold,
@@ -29,7 +53,7 @@ const createSale = async (sales) => {
 };
 
 const getAll = async () => {
-  const sales = await models.findSales(); 
+  const sales = await saleModel.findSales(); 
   const allSales = {
     sales,
   };
@@ -40,11 +64,11 @@ const getAll = async () => {
 const getById = async (id) => {
   if (id.length !== 24) throw errorConstructor(notFound, 'Sale not found', 'not_found');
 
-  const product = await models.findSaleById(id);
+  const getSale = await saleModel.findSaleById(id);
 
-  if (!product) throw errorConstructor(notFound, 'Sale not found', 'not_found');
+  if (!getSale) throw errorConstructor(notFound, 'Sale not found', 'not_found');
 
-  return product;
+  return getSale;
 };
 
 const editById = async (id, sale) => {
@@ -53,28 +77,36 @@ const editById = async (id, sale) => {
   const { error } = schema.validate(sale);
   if (error) throw errorConstructor(unprocessableEntity, error.message, 'invalid_data');
 
-  const { ops } = await models.replaceSaleById(id, itensSold);
+  const { ops } = await saleModel.replaceSaleById(id, itensSold);
   
-  const editedProduct = {
+  const editedSale = {
     _id: id,
     ...ops[0],
   };
 
-  return editedProduct;
+  return editedSale;
 };
 
 const deleteById = async (id) => {
   if (id.length !== 24) {
     throw errorConstructor(unprocessableEntity, 'Wrong sale ID format', 'invalid_data');
   }
-
-  const sale = await models.findSaleById(id);
-  const { deletedCount } = await models.deleteSale(id);
-
-  if (deletedCount === 0) {
+  
+  const sale = await saleModel.findSaleById(id);
+  
+  if (!sale) {
     throw errorConstructor(unprocessableEntity, 'Wrong sale ID format', 'invalid_data');
   }
+
+  const { itensSold } = sale;
+  const removeQuantity = itensSold.map((item) => ({ 
+    productId: item.productId,
+    quantity: item.quantity * (-1),
+  }));
+
+  await handleQuantity(removeQuantity);
   
+  await saleModel.deleteSale(id);
   return sale;
 };
 

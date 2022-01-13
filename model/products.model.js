@@ -34,7 +34,7 @@ const findProductById = async (id) => {
   return query;
 };
 
-const replaceProductById = async (id, name, quantity) => {
+const replaceProductById = async (id, quantity, name) => {
   const conn = await connect();
   const query = await conn.collection('products').replaceOne(
     {
